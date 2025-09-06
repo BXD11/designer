@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  image         String?
+  role          Role      @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  designRequests DesignRequest[]
+  messages       Message[]
+  notifications  Notification[]
+  designs        Design[]
+}
+
+// Design Request model
+model DesignRequest {
+  id             String         @id @default(cuid())
+  title          String
+  description    String
+  designType     DesignType
+  dimensions     String
+  status         RequestStatus  @default(RECEIVED)
+  priority       Priority       @default(MEDIUM)
+  deadline       DateTime?
+  requirements   String?
+  referenceFiles String[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  
+  // Relations
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  messages       Message[]
+  designs        Design[]
+  statusHistory  StatusHistory[]
+  notifications  Notification[]
+}
+
+// Design (delivered work) model
+model Design {
+  id            String         @id @default(cuid())
+  title         String
+  description   String?
+  fileUrl       String
+  thumbnailUrl  String?
+  fileSize      Int?
+  fileType      String?
+  version       Int            @default(1)
+  isApproved    Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  // Relations
+  requestId     String
+  request       DesignRequest  @relation(fields: [requestId], references: [id])
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  feedback      Feedback[]
+}
+
+// Message model for chat
+model Message {
+  id            String         @id @default(cuid())
+  content       String
+  attachments   String[]
+  isRead        Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  
+  // Relations
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  requestId     String
+  request       DesignRequest  @relation(fields: [requestId], references: [id])
+}
+
+// Status History tracking
+model StatusHistory {
+  id            String         @id @default(cuid())
+  status        RequestStatus
+  comment       String?
+  createdAt     DateTime       @default(now())
+  
+  // Relations
+  requestId     String
+  request       DesignRequest  @relation(fields: [requestId], references: [id])
+}
+
+// Notification model
+model Notification {
+  id            String         @id @default(cuid())
+  title         String
+  message       String
+  type          NotificationType
+  isRead        Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  
+  // Relations
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  requestId     String?
+  request       DesignRequest? @relation(fields: [requestId], references: [id])
+}
+
+// Feedback model
+model Feedback {
+  id            String         @id @default(cuid())
+  rating        Int
+  comment       String?
+  createdAt     DateTime       @default(now())
+  
+  // Relations
+  designId      String
+  design        Design         @relation(fields: [designId], references: [id])
+}
+
+// Enums
+enum Role {
+  ADMIN
+  DESIGNER
+  CLIENT
+}
+
+enum DesignType {
+  YOUTUBE_THUMBNAIL
+  FACEBOOK_POST
+  INSTAGRAM_POST
+  LOGO
+  PROFILE_PICTURE
+  WEBSITE_BANNER
+  BUSINESS_CARD
+  FLYER_A4
+  CUSTOM
+}
+
+enum RequestStatus {
+  RECEIVED
+  UNDER_REVIEW
+  IN_PROGRESS
+  READY_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REVISION_REQUESTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  STATUS_UPDATE
+  NEW_MESSAGE
+  DESIGN_READY
+  DEADLINE_REMINDER
+  GENERAL
+}
