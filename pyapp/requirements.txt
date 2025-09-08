@@ -1,0 +1,9 @@
+Django==5.2.6
+djangorestframework==3.16.1
+django-allauth==65.11.1
+psycopg[binary]==3.2.10
+django-storages==1.14.6
+boto3==1.40.25
+whitenoise==6.9.0
+pusher==3.3.0
+python-dotenv==1.0.1
