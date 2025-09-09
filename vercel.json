@@ -1,0 +1,18 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "NEXTAUTH_URL": "@nextauth_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "PUSHER_APP_ID": "@pusher_app_id",
+    "PUSHER_SECRET": "@pusher_secret",
+    "NEXT_PUBLIC_PUSHER_APP_KEY": "@pusher_app_key",
+    "PUSHER_CLUSTER": "@pusher_cluster",
+    "UPLOADTHING_SECRET": "@uploadthing_secret",
+    "UPLOADTHING_APP_ID": "@uploadthing_app_id"
+  }
+}
