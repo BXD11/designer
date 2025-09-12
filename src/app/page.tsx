@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { DesignRequestForm } from '@/components/design-request-form'
@@ -9,7 +9,6 @@ import { Header } from '@/components/header'
 import { StatsCards } from '@/components/stats-cards'
 import { GalleryShowcase } from '@/components/gallery-showcase'
 import { DesignerCard } from '@/components/designer-card'
-import { soundManager } from '@/hooks/useSound'
 import type { Designer } from '@/types'
 import { 
   Sparkles, 
@@ -18,9 +17,8 @@ import {
   Star,
   ArrowRight,
   CheckCircle,
-  MousePointer2,
-  Volume2,
-  VolumeX
+  Send,
+  MessageCircle
 } from 'lucide-react'
 
 // Mock designers data
@@ -79,96 +77,50 @@ const mockDesigners: Designer[] = [
 
 export default function HomePage() {
   const [showForm, setShowForm] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [currentSection, setCurrentSection] = useState('hero')
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-
-  // Track mouse position for interactive effects
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
-
-  // Toggle sound
-  useEffect(() => {
-    soundManager.setEnabled(soundEnabled)
-  }, [soundEnabled])
-
-  const handleButtonClick = () => {
-    soundManager.play('click')
-    setShowForm(true)
-  }
-
-  const handleButtonHover = () => {
-    soundManager.play('hover')
-  }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Custom Cursor */}
-      <motion.div
-        className="fixed w-8 h-8 rounded-full border-2 border-sky-400 pointer-events-none z-50 mix-blend-difference"
-        animate={{
-          x: mousePosition.x - 16,
-          y: mousePosition.y - 16,
-        }}
-        transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-      />
-      <motion.div
-        className="fixed w-2 h-2 rounded-full bg-sky-400 pointer-events-none z-50"
-        animate={{
-          x: mousePosition.x - 4,
-          y: mousePosition.y - 4,
-        }}
-        transition={{ type: 'spring', stiffness: 2000, damping: 40 }}
-      />
-
+    <div className="min-h-screen relative">
       <Header />
       
-      {/* Sound Toggle Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="fixed bottom-8 left-8 z-40 w-12 h-12 rounded-full glass flex items-center justify-center group hover:scale-110 transition-transform"
-        onClick={() => setSoundEnabled(!soundEnabled)}
-        onMouseEnter={handleButtonHover}
+      {/* Quick Contact Button */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5 }}
+        className="fixed bottom-8 left-8 z-40"
       >
-        {soundEnabled ? (
-          <Volume2 className="w-5 h-5 text-sky-500" />
-        ) : (
-          <VolumeX className="w-5 h-5 text-gray-500" />
-        )}
-        <span className="absolute bottom-full mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          {soundEnabled ? 'إيقاف الصوت' : 'تشغيل الصوت'}
-        </span>
-      </motion.button>
+        <Button
+          variant="glow"
+          size="lg"
+          className="rounded-full shadow-2xl hover:scale-110 transition-transform"
+          onClick={() => window.location.href = '/messages?new=quick'}
+        >
+          <MessageCircle className="w-6 h-6" />
+        </Button>
+      </motion.div>
       
-      {/* Hero Section with Advanced Effects */}
-      <section className="relative px-4 py-20 overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative px-4 pt-24 pb-20 overflow-hidden">
         {/* Animated Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-400/10 via-transparent to-purple-600/10 animate-gradient" />
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-sky-100 dark:from-sky-950/20 dark:via-gray-900 dark:to-sky-900/20" />
         
         {/* Floating Orbs */}
-        <div className="absolute inset-0">
-          {[...Array(5)].map((_, i) => (
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(3)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-64 h-64 rounded-full"
+              className="absolute w-96 h-96 rounded-full"
               style={{
-                background: `radial-gradient(circle, rgba(14,165,233,0.${i + 1}) 0%, transparent 70%)`,
-                left: `${20 * i}%`,
-                top: `${10 * i}%`,
+                background: `radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%)`,
+                left: `${i * 30}%`,
+                top: `${i * 20}%`,
               }}
               animate={{
-                x: [0, 30, 0],
-                y: [0, -30, 0],
-                scale: [1, 1.2, 1],
+                x: [0, 50, 0],
+                y: [0, -50, 0],
               }}
               transition={{
-                duration: 10 + i * 2,
+                duration: 20 + i * 5,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
@@ -196,25 +148,20 @@ export default function HomePage() {
             </motion.div>
             
             <motion.h1 
-              className="text-5xl md:text-7xl font-bold mb-6"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <span className="gradient-text inline-block hover:scale-105 transition-transform">
-                تصاميم إبداعية
-              </span>
+              <span className="gradient-text">تصاميم إبداعية</span>
               <br />
-              <motion.span 
-                className="text-gray-800 dark:text-white inline-block"
-                whileHover={{ scale: 1.05 }}
-              >
+              <span className="text-gray-800 dark:text-white">
                 بلمسة سحرية
-              </motion.span>
+              </span>
             </motion.h1>
             
             <motion.p 
-              className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
+              className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -231,27 +178,18 @@ export default function HomePage() {
               <Button
                 size="lg"
                 variant="glow"
-                onClick={handleButtonClick}
-                onMouseEnter={handleButtonHover}
-                className="group relative overflow-hidden"
+                onClick={() => setShowForm(true)}
+                className="group"
               >
-                <span className="relative z-10 flex items-center">
-                  <Palette className="w-5 h-5 ml-2" />
-                  ابدأ طلبك الآن
-                  <ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-[-4px] transition-transform" />
-                </span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-sky-600 to-blue-600"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: 0 }}
-                  transition={{ type: 'tween' }}
-                />
+                <Palette className="w-5 h-5 ml-2" />
+                ابدأ طلبك الآن
+                <ArrowRight className="w-4 h-4 mr-2 group-hover:translate-x-[-4px] transition-transform" />
               </Button>
               
               <Button 
                 size="lg" 
                 variant="outline"
-                onMouseEnter={handleButtonHover}
+                onClick={() => window.location.href = '/library'}
                 className="group"
               >
                 <Star className="w-5 h-5 ml-2 group-hover:rotate-180 transition-transform duration-500" />
@@ -260,11 +198,11 @@ export default function HomePage() {
             </motion.div>
           </motion.div>
 
-          {/* Enhanced Features Grid */}
+          {/* Features Grid */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
             className="grid md:grid-cols-3 gap-6 mt-20"
           >
             {[
@@ -273,41 +211,28 @@ export default function HomePage() {
                 title: 'سرعة فائقة',
                 description: 'احصل على تصميمك في وقت قياسي',
                 color: 'from-yellow-400 to-orange-400',
-                delay: 0.1
               },
               {
                 icon: Palette,
                 title: 'إبداع لا محدود',
                 description: 'تصاميم فريدة تلبي رؤيتك',
                 color: 'from-sky-400 to-blue-500',
-                delay: 0.2
               },
               {
                 icon: CheckCircle,
                 title: 'جودة مضمونة',
                 description: 'معايير احترافية عالية',
                 color: 'from-green-400 to-emerald-500',
-                delay: 0.3
               }
             ].map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + feature.delay }}
-                whileHover={{ scale: 1.05, rotateY: 5 }}
-                onMouseEnter={handleButtonHover}
-                className="glass p-6 rounded-2xl group cursor-pointer relative overflow-hidden"
-                style={{ perspective: 1000 }}
+                transition={{ delay: 0.7 + index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="glass p-6 rounded-2xl group cursor-pointer"
               >
-                {/* Animated background */}
-                <motion.div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{
-                    background: `linear-gradient(135deg, transparent, rgba(14,165,233,0.1))`,
-                  }}
-                />
-                
                 <motion.div
                   className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4`}
                   whileHover={{ rotate: 360 }}
@@ -321,58 +246,10 @@ export default function HomePage() {
                 <p className="text-gray-600 dark:text-gray-300">
                   {feature.description}
                 </p>
-                
-                {/* Hover particles */}
-                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                  {[...Array(3)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1 h-1 bg-sky-400 rounded-full"
-                      initial={{ x: '50%', y: '100%' }}
-                      animate={{
-                        x: `${Math.random() * 100}%`,
-                        y: `${Math.random() * 100}%`,
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatType: 'reverse',
-                        delay: i * 0.3
-                      }}
-                    />
-                  ))}
-                </div>
               </motion.div>
             ))}
           </motion.div>
         </div>
-
-        {/* Enhanced Decorative Elements */}
-        <motion.div 
-          className="absolute top-20 left-10 w-20 h-20 bg-sky-400 rounded-full blur-3xl opacity-30"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut'
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-20 right-10 w-32 h-32 bg-sky-500 rounded-full blur-3xl opacity-20"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 1
-          }}
-        />
       </section>
 
       {/* Stats Section */}
@@ -391,7 +268,7 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               <span className="gradient-text">نخبة من المصممين المحترفين</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -428,7 +305,7 @@ export default function HomePage() {
       <section className="px-4 py-16">
         <div className="container mx-auto max-w-7xl">
           <motion.h2 
-            className="text-3xl font-bold text-center mb-12"
+            className="text-3xl md:text-4xl font-bold text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
